@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Let Me Find U - Resource Finder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+        }
+        
+        .logo {
+            font-size: 3.5em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00b4db, #0083b0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            font-size: 1.2em;
+            color: #b0b0b0;
+            margin-bottom: 30px;
+        }
+        
+        .search-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .search-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #00b4db;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #2d3748;
+            border-radius: 8px;
+            background: #1e2939;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #00b4db;
+            box-shadow: 0 0 0 3px rgba(0, 180, 219, 0.1);
+        }
+        
+        .search-btn {
+            background: linear-gradient(45deg, #00b4db, #0083b0);
+            color: white;
+            border: none;
+            padding: 12px 35px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-top: 28px;
+        }
+        
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 180, 219, 0.3);
+        }
+        
+        .dork-preview {
+            background: rgba(0, 180, 219, 0.1);
+            border: 1px dashed #00b4db;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            word-wrap: break-word;
+        }
+        
+        .dork-preview h4 {
+            color: #00b4db;
+            margin-bottom: 10px;
+        }
+        
+        .examples {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .examples h3 {
+            color: #00b4db;
+            margin-bottom: 15px;
+        }
+        
+        .example-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            border-left: 3px solid #00b4db;
+        }
+        
+        .results {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+            display: none;
+        }
+        
+        .results.active {
+            display: block;
+        }
+        
+        .result-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .result-item:hover {
+            border-color: #00b4db;
+            transform: translateX(5px);
+        }
+        
+        .result-title {
+            color: #00b4db;
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .result-link {
+            color: #4fd1c7;
+            text-decoration: none;
+            word-break: break-all;
+        }
+        
+        .result-link:hover {
+            text-decoration: underline;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: #00b4db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .filetype-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .filetype-tag {
+            background: rgba(0, 180, 219, 0.2);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filetype-tag:hover {
+            background: rgba(0, 180, 219, 0.4);
+        }
+        
+        .instructions {
+            color: #b0b0b0;
+            font-size: 14px;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .logo {
+                font-size: 2.5em;
+            }
+            
+            .search-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">Let Me Find U</div>
+            <div class="tagline">Find downloadable resources using Google Dorking techniques</div>
+        </header>
+        
+        <section class="search-section">
+            <div class="search-form">
+                <div class="form-group">
+                    <label for="resourceName">Resource Name / Keywords</label>
+                    <input type="text" id="resourceName" placeholder="e.g., machine learning, calculus, harry potter">
+                </div>
+                
+                <div class="form-group">
+                    <label for="fileType">File Type</label>
+                    <select id="fileType">
+                        <option value="pdf">PDF Documents</option>
+                        <option value="epub">EPUB eBooks</option>
+                        <option value="mobi">MOBI eBooks</option>
+                        <option value="mp4">MP4 Videos</option>
+                        <option value="mp3">MP3 Audio</option>
+                        <option value="zip">ZIP Archives</option>
+                        <option value="rar">RAR Archives</option>
+                        <option value="torrent">Torrent Files</option>
+                        <option value="custom">Custom Type</option>
+                    </select>
+                    <input type="text" id="customFileType" placeholder="Enter custom file type" style="display: none; margin-top: 10px;">
+                </div>
+                
+                <div class="form-group">
+                    <label for="searchType">Search Method</label>
+                    <select id="searchType">
+                        <option value="indexof">Directory Listing (index.of)</option>
+                        <option value="inurl">Direct File Search</option>
+                        <option value="intitle">Title Search</option>
+                        <option value="site">Specific Site Search</option>
+                    </select>
+                </div>
+                
+                <button type="button" class="search-btn" onclick="generateDork()">Generate Search Dork</button>
+            </div>
+            
+            <div class="filetype-tags">
+                <div class="filetype-tag" onclick="quickSearch('pdf')">PDF</div>
+                <div class="filetype-tag" onclick="quickSearch('epub')">EPUB</div>
+                <div class="filetype-tag" onclick="quickSearch('mp4')">MP4</div>
+                <div class="filetype-tag" onclick="quickSearch('zip')">ZIP</div>
+                <div class="filetype-tag" onclick="quickSearch('torrent')">Torrent</div>
+                <div class="filetype-tag" onclick="quickSearch('mp3')">MP3</div>
+                <div class="filetype-tag" onclick="quickSearch('mobi')">MOBI</div>
+                <div class="filetype-tag" onclick="quickSearch('avi')">AVI</div>
+            </div>
+            
+            <div id="dorkPreview" class="dork-preview">
+                <h4>Generated Google Dork:</h4>
+                <div id="dorkOutput">Enter search parameters above</div>
+                <div class="instructions">
+                    Copy this dork and paste it into Google Search, or click the generated links below
+                </div>
+            </div>
+            
+            <div class="examples">
+                <h3>Common Google Dork Examples:</h3>
+                <div class="example-item">intitle:"index of" "machine learning" pdf</div>
+                <div class="example-item">inurl:"/ebooks/" "data science" epub</div>
+                <div class="example-item">intitle:"index of" "harry potter" mobi</div>
+                <div class="example-item">"parent directory" "photography course" mp4</div>
+                <div class="example-item">site:mediafire.com "python programming" zip</div>
+            </div>
+        </section>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Generating search links...</p>
+        </div>
+        
+        <section class="results" id="results">
+            <h3>Search Results:</h3>
+            <div id="resultsContainer"></div>
+        </section>
+    </div>
+
+    <script>
+        // Show/hide custom file type input
+        document.getElementById('fileType').addEventListener('change', function() {
+            const customInput = document.getElementById('customFileType');
+            customInput.style.display = this.value === 'custom' ? 'block' : 'none';
+        });
+
+        // Quick search for file types
+        function quickSearch(fileType) {
+            document.getElementById('fileType').value = fileType;
+            document.getElementById('resourceName').value = '';
+            document.getElementById('resourceName').focus();
+        }
+
+        function generateDork() {
+            const resource = document.getElementById('resourceName').value.trim();
+            const fileType = document.getElementById('fileType').value;
+            const customType = document.getElementById('customFileType').value.trim();
+            const searchType = document.getElementById('searchType').value;
+            
+            if (!resource) {
+                alert('Please enter a resource name or keywords');
+                return;
+            }
+            
+            const actualFileType = fileType === 'custom' ? customType : fileType;
+            if (!actualFileType && fileType !== 'custom') {
+                alert('Please select a file type');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').classList.remove('active');
+            
+            // Generate dork based on search type
+            let dork = '';
+            switch(searchType) {
+                case 'indexof':
+                    dork = `intitle:"index of" "${resource}" "${actualFileType}"`;
+                    break;
+                case 'inurl':
+                    dork = `inurl:${actualFileType} "${resource}"`;
+                    break;
+                case 'intitle':
+                    dork = `intitle:"${resource}" filetype:${actualFileType}`;
+                    break;
+                case 'site':
+                    dork = `site:mediafire.com OR site:drive.google.com OR site:mega.nz "${resource}" ${actualFileType}`;
+                    break;
+            }
+            
+            // Display dork
+            document.getElementById('dorkOutput').innerHTML = `<code>${dork}</code>`;
+            
+            // Generate search links
+            setTimeout(() => {
+                generateSearchLinks(resource, actualFileType, searchType);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('results').classList.add('active');
+            }, 800);
+        }
+
+        function generateSearchLinks(resource, fileType, searchType) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = '';
+            
+            // Create search variations
+            const searchVariations = [
+                {
+                    title: "📁 Directory Listing Search",
+                    dork: `intitle:"index of" "${resource}" "${fileType}"`,
+                    desc: "Search for open directory listings"
+                },
+                {
+                    title: "🔍 Direct File Search",
+                    dork: `inurl:"${fileType}" "${resource}" -inurl:(html|htm|php|asp|jsp)`,
+                    desc: "Find direct file links"
+                },
+                {
+                    title: "📚 Parent Directory Search",
+                    dork: `"parent directory" "${resource}" "${fileType}"`,
+                    desc: "Find parent directories containing files"
+                },
+                {
+                    title: "🌐 Multiple Site Search",
+                    dork: `site:mediafire.com OR site:drive.google.com OR site:dropbox.com "${resource}" ${fileType}`,
+                    desc: "Search across file hosting sites"
+                },
+                {
+                    title: "🎯 Exact Phrase Search",
+                    dork: `"${resource}" filetype:${fileType}`,
+                    desc: "Exact phrase match"
+                },
+                {
+                    title: "🔗 Educational Resources",
+                    dork: `site:.edu "${resource}" "${fileType}"`,
+                    desc: "Search educational institution sites"
+                }
+            ];
+            
+            // Generate result cards
+            searchVariations.forEach(variation => {
+                const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(variation.dork)}`;
+                const duckUrl = `https://duckduckgo.com/?q=${encodeURIComponent(variation.dork)}`;
+                
+                const resultCard = document.createElement('div');
+                resultCard.className = 'result-item';
+                resultCard.innerHTML = `
+                    <div class="result-title">${variation.title}</div>
+                    <div class="instructions">${variation.desc}</div>
+                    <div class="instructions" style="margin-top: 10px; font-size: 12px;">
+                        <code>${variation.dork}</code>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <a href="${googleUrl}" target="_blank" class="result-link">🔍 Search on Google</a>
+                        <span style="margin: 0 10px; color: #666;">|</span>
+                        <a href="${duckUrl}" target="_blank" class="result-link">🦆 Search on DuckDuckGo</a>
+                    </div>
+                `;
+                resultsContainer.appendChild(resultCard);
+            });
+            
+            // Add disclaimer
+            const disclaimer = document.createElement('div');
+            disclaimer.className = 'instructions';
+            disclaimer.style.marginTop = '30px';
+            disclaimer.style.padding = '15px';
+            disclaimer.style.background = 'rgba(255, 100, 100, 0.1)';
+            disclaimer.style.borderRadius = '8px';
+            disclaimer.style.border = '1px solid rgba(255, 100, 100, 0.3)';
+            disclaimer.innerHTML = `
+                <strong>⚠️ Important Disclaimer:</strong><br>
+                This tool generates Google search queries (dorks) that find publicly accessible files.<br>
+                • Only download content you have the right to access<br>
+                • Respect copyright laws and intellectual property<br>
+                • Use for educational purposes only<br>
+                • The website owner is not responsible for how you use this tool
+            `;
+            resultsContainer.appendChild(disclaimer);
+        }
+
+        // Example searches
+        document.getElementById('resourceName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateDork();
+            }
+        });
+
+        // Initialize with example
+        document.getElementById('resourceName').value = 'machine learning';
+    </script>
+</body>
+</html>
